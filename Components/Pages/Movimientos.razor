@@ -1,0 +1,78 @@
+@page "/movimientos"
+@using RetoZiur.Models
+@using RetoZiur.Services
+@implements IDisposable
+@inject IMovimientoService Servicio
+
+<PageTitle>Movimientos</PageTitle>
+
+<h1>Tipos de Movimiento</h1>
+
+@if (cargando)
+{
+    <p><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Cargando...</p>
+}
+else if (error is not null)
+{
+    <div class="alert alert-danger" role="alert">Error: @error</div>
+}
+else if (movimientos is null || movimientos.Count == 0)
+{
+    <div class="alert alert-info" role="alert">No hay datos para mostrar.</div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Descripción</th>
+                <th>Activa</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var m in movimientos)
+            {
+                <tr>
+                    <td>@m.Codigo</td>
+                    <td>@m.Descripcion</td>
+                    <td>@(m.VActiva ? "Sí" : "No")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private readonly CancellationTokenSource _cts = new();
+
+    private List<TipoMovimiento>? movimientos;
+    private bool cargando = true;
+    private string? error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            movimientos = await Servicio.ObtenerMovimientosAsync(_cts.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            // El componente se destruyó (navegación fuera de la página) antes de que terminara la carga.
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    public void Dispose()
+    {
+        _cts.Cancel();
+        _cts.Dispose();
+    }
+}
