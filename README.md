@@ -9,11 +9,15 @@ Aplicación Blazor Server (.NET 7) que consume una API REST externa y muestra un
 
 ### 1. Configurar el token (user-secrets, solo desarrollo)
 
-El token de autenticación **no** está en el repositorio. Se configura localmente con `dotnet user-secrets`:
+El token de autenticación **no** está en el repositorio, por buenas prácticas de seguridad.
+Es el mismo token que Ziur Software proporcionó junto con el endpoint de la API.
+
+El proyecto ya tiene un `UserSecretsId` configurado en el `.csproj` (necesario para que
+`dotnet user-secrets` funcione), pero cada persona que clone el repo debe configurar el
+valor del token localmente:
 
 ```bash
-dotnet user-secrets init   # ya está hecho en este repo (agrega UserSecretsId al .csproj)
-dotnet user-secrets set "MovimientoApi:Token" "<el-token-real>"
+dotnet user-secrets set "MovimientoApi:Token" "<el-token-proporcionado>"
 ```
 
 Esto guarda el valor en `~/.microsoft/usersecrets/<UserSecretsId>/secrets.json`, fuera de la carpeta del proyecto, por lo que nunca se sube a Git.
